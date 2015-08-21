@@ -9,6 +9,7 @@ use glium::glutin;
 use glium::index::PrimitiveType;
 
 use std::thread;
+use std::f32::consts::PI;
 
 pub enum Action {
     Stop,
@@ -51,7 +52,7 @@ fn main() {
     let vertex_buffer = {
         #[derive(Copy, Clone)]
         struct Vertex {
-            position: [f32; 2],
+            position: [f32; 3],
             color: [f32; 3],
         }
 
@@ -59,9 +60,9 @@ fn main() {
 
         glium::VertexBuffer::new(&display,
             &[
-                Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
-                Vertex { position: [ 0.0,  0.5], color: [0.0, 1.0, 0.0] },
-                Vertex { position: [ 0.5, -0.5], color: [0.0, 1.0, 0.0] },
+                Vertex { position: [-0.5, -0.5, 0.0], color: [1.0, 0.0, 0.0] },
+                Vertex { position: [ 0.0,  0.5, 0.0], color: [0.0, 1.0, 0.0] },
+                Vertex { position: [ 0.5, -0.5, 0.0], color: [0.0, 0.0, 1.0] },
             ]
         ).unwrap()
     };
@@ -76,13 +77,13 @@ fn main() {
 
                 uniform mat4 matrix;
 
-                in vec2 position;
+                in vec3 position;
                 in vec3 color;
 
                 out vec3 vColor;
 
                 void main() {
-                    gl_Position = vec4(position, 0.0, 1.0) * matrix;
+                    gl_Position = vec4(position, 1.0) * matrix;
                     vColor = color;
                 }
             ",
@@ -98,11 +99,15 @@ fn main() {
             "
         }
     ).unwrap();
-
+    let mut t = -PI;
     start_loop(|| {
+        t += 0.02;
+        if t > PI {
+            t = -PI;
+        }
         let uniforms = uniform! {
             matrix: [
-                [1.0, 0.0, 0.0, 0.0],
+                [t.cos(), 0.0, 0.0, 0.0],
                 [0.0, 1.0, 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 1.0f32]
